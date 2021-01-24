@@ -1,7 +1,6 @@
 /* widget_internals.h: Functions internal to the widget code
    Copyright (c) 2001-2005 Matan Ziv-Av, Philip Kendall
-
-   $Id: widget_internals.h 4968 2013-05-19 16:11:17Z zubzero $
+   Copyright (c) 2015 Stuart Brady
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -162,7 +161,7 @@ scaler_type widget_select_scaler( int (*selector)( scaler_type ) );
 typedef struct widget_select_t {
 
   const char *title;	/* Dialog title */
-  const char **options;	/* The available options */
+  const char * const *options;	/* The available options */
   size_t count;		/* The number of options */
   size_t current;	/* Which option starts active? */
 
@@ -193,6 +192,7 @@ typedef enum widget_text_input_allow {
 typedef struct widget_text_t {
   const char *title;
   widget_text_input_allow allow; 
+  unsigned int max_length;
   char text[40];
 } widget_text_t;
 
@@ -231,6 +231,11 @@ void widget_pokefinder_keyhandler( input_key key );
 int widget_memory_draw( void *data );
 void widget_memory_keyhandler( input_key key );
 
+/* The about fuse widget */
+
+int widget_about_draw( void *data );
+void widget_about_keyhandler( input_key key );
+
 /* The ROM selector widget */
 
 typedef struct widget_roms_info {
@@ -239,6 +244,7 @@ typedef struct widget_roms_info {
 
   const char *title;
   size_t start, count;
+  int is_peripheral;
 
 } widget_roms_info;
 

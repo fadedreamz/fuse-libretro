@@ -1,7 +1,5 @@
 # snap_accessors.txt: simple accessors for libspectrum_snap
-# Copyright (c) 2003-2009 Philip Kendall
-
-# $Id: snap_accessors.txt 4904 2013-03-08 20:21:02Z pak21 $
+# Copyright (c) 2003-2016 Philip Kendall
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -168,6 +166,14 @@ size_t divide_pages
 libspectrum_byte* divide_eprom 1
 libspectrum_byte* divide_ram 1
 
+int divmmc_active
+int divmmc_eprom_writeprotect
+int divmmc_paged
+libspectrum_byte divmmc_control
+size_t divmmc_pages
+libspectrum_byte* divmmc_eprom 1
+libspectrum_byte* divmmc_ram 1
+
 int fuller_box_active
 
 int melodik_active
@@ -194,3 +200,60 @@ libspectrum_byte* spectranet_ram 1
 int late_timings
 
 int zx_printer_active
+
+int usource_active
+int usource_paged
+int usource_custom_rom
+libspectrum_byte* usource_rom 1
+size_t usource_rom_length 1
+
+int disciple_active
+int disciple_paged
+int disciple_inhibit_button
+int disciple_drive_count
+int disciple_custom_rom
+size_t disciple_rom_length 1
+int disciple_direction
+libspectrum_byte disciple_control
+libspectrum_byte disciple_track
+libspectrum_byte disciple_sector
+libspectrum_byte disciple_data
+libspectrum_byte disciple_status
+libspectrum_byte* disciple_rom 1
+libspectrum_byte* disciple_ram 1
+
+int didaktik80_active
+int didaktik80_paged
+int didaktik80_drive_count
+int didaktik80_custom_rom
+size_t didaktik80_rom_length 1
+int didaktik80_direction
+libspectrum_byte didaktik80_aux
+libspectrum_byte didaktik80_track
+libspectrum_byte didaktik80_sector
+libspectrum_byte didaktik80_data
+libspectrum_byte didaktik80_status
+libspectrum_byte* didaktik80_rom 1
+libspectrum_byte* didaktik80_ram 1
+
+int covox_active
+libspectrum_byte covox_dac
+
+int ulaplus_active
+int ulaplus_palette_enabled
+libspectrum_byte ulaplus_current_register
+libspectrum_byte* ulaplus_palette 1
+libspectrum_byte ulaplus_ff_register
+
+int multiface_active
+int multiface_paged
+int multiface_model_one
+int multiface_model_128
+int multiface_model_3
+int multiface_disabled
+int multiface_software_lockout
+int multiface_red_button_disabled
+libspectrum_byte* multiface_ram 1
+size_t multiface_ram_length 1
+
+int zxmmc_active

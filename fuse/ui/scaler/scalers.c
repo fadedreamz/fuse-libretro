@@ -1,8 +1,6 @@
 /* scalers.c: the actual graphics scalers
- * Copyright (C) 2003-2008 Fredrick Meunier, Philip Kendall, Gergely Szasz
+ * Copyright (C) 2003-2015 Fredrick Meunier, Philip Kendall, Gergely Szasz
  *
- * $Id: scalers.c 4624 2012-01-09 20:59:35Z pak21 $
- * 
  * Originally taken from ScummVM - Scumm Interpreter
  * Copyright (C) 2001  Ludvig Strigeus
  * Copyright (C) 2001-2003 The ScummVM project
@@ -839,9 +837,9 @@ FUNCTION( scaler_AdvMame2x )( const libspectrum_byte *srcPtr,
   while (height--) {
     int i;
 
-    B = *(p - 1 - nextlineSrc);
+    /* B = *(p - 1 - nextlineSrc); */
     E = *(p - 1);
-    H = *(p - 1 + nextlineSrc);
+    /* H = *(p - 1 + nextlineSrc); */
     C = *(p - nextlineSrc);
     F = *(p);
     I = *(p + nextlineSrc);
@@ -883,9 +881,9 @@ FUNCTION( scaler_AdvMame3x )( const libspectrum_byte *srcPtr,
   while (height--) {
     int i;
 
-    B = *(p - 1 - nextlineSrc);
+    /* B = *(p - 1 - nextlineSrc); */
     E = *(p - 1);
-    H = *(p - 1 + nextlineSrc);
+    /* H = *(p - 1 + nextlineSrc); */
     C = *(p - nextlineSrc);
     F = *(p);
     I = *(p + nextlineSrc);

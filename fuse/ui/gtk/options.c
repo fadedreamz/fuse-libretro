@@ -38,16 +38,16 @@
 #include "compat.h"
 #include "display.h"
 #include "fuse.h"
-#include "gtkcompat.h"
-#include "gtkinternals.h"
 #include "options.h"
 #include "options_internals.h"
 #include "periph.h"
 #include "settings.h"
+#include "ui/gtk/gtkcompat.h"
+#include "ui/gtk/gtkinternals.h"
 #include "utils.h"
 
 static int
-option_enumerate_combo( const char **options, char *value, guint count,
+option_enumerate_combo( const char * const *options, char *value, guint count,
                         int def )
 {
   guint i;
@@ -94,6 +94,7 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                               5 );
     snprintf( buffer, 80, "%d", settings_current.emulation_speed );
     gtk_entry_set_text( GTK_ENTRY( dialog.emulation_speed ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.emulation_speed ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.emulation_speed, TRUE, TRUE, 0 );
 
@@ -116,6 +117,7 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                               1 );
     snprintf( buffer, 80, "%d", settings_current.frame_rate );
     gtk_entry_set_text( GTK_ENTRY( dialog.frame_rate ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.frame_rate ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.frame_rate, TRUE, TRUE, 0 );
 
@@ -128,41 +130,17 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.issue2 );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.issue2 );
 
-  dialog.tape_traps =
-    gtk_check_button_new_with_label( "Use tape traps" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.tape_traps ),
-                                settings_current.tape_traps );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.tape_traps );
+  dialog.recreated_spectrum =
+    gtk_check_button_new_with_label( "Recreated ZX Spectrum" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.recreated_spectrum ),
+                                settings_current.recreated_spectrum );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.recreated_spectrum );
 
-  dialog.fastload =
-    gtk_check_button_new_with_label( "Fastloading" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.fastload ),
-                                settings_current.fastload );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.fastload );
-
-  dialog.detect_loader =
-    gtk_check_button_new_with_label( "Detect loaders" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.detect_loader ),
-                                settings_current.detect_loader );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.detect_loader );
-
-  dialog.accelerate_loader =
-    gtk_check_button_new_with_label( "Accelerate loaders" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.accelerate_loader ),
-                                settings_current.accelerate_loader );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.accelerate_loader );
-
-  dialog.auto_load =
-    gtk_check_button_new_with_label( "Auto-load media" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.auto_load ),
-                                settings_current.auto_load );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.auto_load );
-
-  dialog.slt_traps =
-    gtk_check_button_new_with_label( "Use .slt traps" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.slt_traps ),
-                                settings_current.slt_traps );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.slt_traps );
+  dialog.keyboard_arrows_shifted =
+    gtk_check_button_new_with_label( "Use shift with arrow keys" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.keyboard_arrows_shifted ),
+                                settings_current.keyboard_arrows_shifted );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.keyboard_arrows_shifted );
 
   dialog.writable_roms =
     gtk_check_button_new_with_label( "Allow writes to ROM" );
@@ -170,39 +148,17 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.writable_roms );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.writable_roms );
 
-  dialog.autosave_settings =
-    gtk_check_button_new_with_label( "Auto-save settings" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.autosave_settings ),
-                                settings_current.autosave_settings );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.autosave_settings );
+  dialog.late_timings =
+    gtk_check_button_new_with_label( "Late timings" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.late_timings ),
+                                settings_current.late_timings );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.late_timings );
 
-  {
-    GtkWidget *frame = gtk_frame_new( "MDR cartridge len" );
-    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
-    GtkWidget *text = gtk_label_new( "blocks" );
-    gchar buffer[80];
-
-    gtk_box_pack_start( GTK_BOX( content_area ), frame, TRUE, TRUE, 0 );
-
-    gtk_container_set_border_width( GTK_CONTAINER( hbox ), 4 );
-    gtk_container_add( GTK_CONTAINER( frame ), hbox );
-
-    dialog.mdr_len = gtk_entry_new();
-    gtk_entry_set_max_length( GTK_ENTRY( dialog.mdr_len ),
-                              3 );
-    snprintf( buffer, 80, "%d", settings_current.mdr_len );
-    gtk_entry_set_text( GTK_ENTRY( dialog.mdr_len ), buffer );
-
-    gtk_box_pack_start( GTK_BOX( hbox ), dialog.mdr_len, TRUE, TRUE, 0 );
-
-    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
-  }
-
-  dialog.mdr_random_len =
-    gtk_check_button_new_with_label( "Random length MDR cartridge" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.mdr_random_len ),
-                                settings_current.mdr_random_len );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.mdr_random_len );
+  dialog.z80_is_cmos =
+    gtk_check_button_new_with_label( "Z80 is CMOS" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.z80_is_cmos ),
+                                settings_current.z80_is_cmos );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.z80_is_cmos );
 
   dialog.rs232_handshake =
     gtk_check_button_new_with_label( "RS-232 handshake" );
@@ -222,12 +178,6 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.pal_tv2x );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.pal_tv2x );
 
-  dialog.confirm_actions =
-    gtk_check_button_new_with_label( "Confirm actions" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.confirm_actions ),
-                                settings_current.confirm_actions );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.confirm_actions );
-
   dialog.statusbar =
     gtk_check_button_new_with_label( "Show statusbar" );
   gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.statusbar ),
@@ -240,16 +190,25 @@ menu_options_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.joy_prompt );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.joy_prompt );
 
-  dialog.late_timings =
-    gtk_check_button_new_with_label( "Late timings" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.late_timings ),
-                                settings_current.late_timings );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.late_timings );
+  dialog.confirm_actions =
+    gtk_check_button_new_with_label( "Confirm actions" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.confirm_actions ),
+                                settings_current.confirm_actions );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.confirm_actions );
+
+  dialog.autosave_settings =
+    gtk_check_button_new_with_label( "Auto-save settings" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.autosave_settings ),
+                                settings_current.autosave_settings );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.autosave_settings );
 
   /* Create the OK and Cancel buttons */
   gtkstock_create_ok_cancel( dialog.dialog, NULL,
                              G_CALLBACK( menu_options_general_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
 
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
@@ -276,35 +235,20 @@ menu_options_general_done( GtkWidget *widget GCC_UNUSED,
   settings_current.issue2 =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->issue2 ) );
 
-  settings_current.tape_traps =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->tape_traps ) );
+  settings_current.recreated_spectrum =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->recreated_spectrum ) );
 
-  settings_current.fastload =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->fastload ) );
-
-  settings_current.detect_loader =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->detect_loader ) );
-
-  settings_current.accelerate_loader =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->accelerate_loader ) );
-
-  settings_current.auto_load =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->auto_load ) );
-
-  settings_current.slt_traps =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->slt_traps ) );
+  settings_current.keyboard_arrows_shifted =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->keyboard_arrows_shifted ) );
 
   settings_current.writable_roms =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->writable_roms ) );
 
-  settings_current.autosave_settings =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->autosave_settings ) );
+  settings_current.late_timings =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->late_timings ) );
 
-  settings_current.mdr_len =
-    atoi( gtk_entry_get_text( GTK_ENTRY( ptr->mdr_len ) ) );
-
-  settings_current.mdr_random_len =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->mdr_random_len ) );
+  settings_current.z80_is_cmos =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->z80_is_cmos ) );
 
   settings_current.rs232_handshake =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->rs232_handshake ) );
@@ -315,17 +259,209 @@ menu_options_general_done( GtkWidget *widget GCC_UNUSED,
   settings_current.pal_tv2x =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->pal_tv2x ) );
 
-  settings_current.confirm_actions =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->confirm_actions ) );
-
   settings_current.statusbar =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->statusbar ) );
 
   settings_current.joy_prompt =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->joy_prompt ) );
 
-  settings_current.late_timings =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->late_timings ) );
+  settings_current.confirm_actions =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->confirm_actions ) );
+
+  settings_current.autosave_settings =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->autosave_settings ) );
+
+  gtk_widget_destroy( ptr->dialog );
+
+  gtkstatusbar_set_visibility( settings_current.statusbar );
+  display_refresh_all();
+
+  gtk_main_quit();
+}
+
+
+static const char * const media_phantom_typist_mode_combo[] = {
+  "Auto",
+  "Keyword",
+  "Keystroke",
+  "Menu",
+  "Plus 2A",
+  "Plus 3",
+};
+
+static const guint media_phantom_typist_mode_combo_count = 6;
+
+int
+option_enumerate_media_phantom_typist_mode( void )
+{
+  return option_enumerate_combo( media_phantom_typist_mode_combo,
+                                 settings_current.phantom_typist_mode,
+                                 media_phantom_typist_mode_combo_count,
+                                 0 );
+}
+
+static void menu_options_media_done( GtkWidget *widget,
+					  gpointer user_data );
+
+void
+menu_options_media( GtkWidget *widget GCC_UNUSED,
+			 gpointer data GCC_UNUSED )
+{
+  GtkWidget *content_area;
+  menu_options_media_t dialog;
+
+  /* Firstly, stop emulation */
+  fuse_emulation_pause();
+
+  /* Create the necessary widgets */
+  dialog.dialog = gtkstock_dialog_new( "Fuse - Media Options", NULL );
+  content_area = gtk_dialog_get_content_area( GTK_DIALOG( dialog.dialog ) );
+
+  /* Create the various widgets */
+  dialog.auto_load =
+    gtk_check_button_new_with_label( "Auto-load media" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.auto_load ),
+                                settings_current.auto_load );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.auto_load );
+
+  {
+    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *combo = gtk_combo_box_text_new();
+    GtkWidget *text = gtk_label_new( "Phantom typist mode" );
+    guint i;
+
+    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
+    text = gtk_label_new( " " );
+    gtk_box_pack_start( GTK_BOX( hbox ), text, TRUE, FALSE, 5 );
+
+    for( i = 0; i < media_phantom_typist_mode_combo_count; i++ ) {
+      gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), media_phantom_typist_mode_combo[i] );
+    }
+    gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), 0 );
+    if( settings_current.phantom_typist_mode != NULL ) {
+      for( i = 0; i < media_phantom_typist_mode_combo_count; i++ ) {
+        if( !strcmp( settings_current.phantom_typist_mode, media_phantom_typist_mode_combo[i] ) ) {
+          gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), i );
+        }
+      }
+    }
+
+    dialog.phantom_typist_mode = combo;
+    gtk_box_pack_start( GTK_BOX( hbox ), dialog.phantom_typist_mode, FALSE, FALSE, 5 );
+
+    gtk_box_pack_start( GTK_BOX( content_area ), hbox, TRUE, TRUE, 0 );
+  }
+
+  dialog.detect_loader =
+    gtk_check_button_new_with_label( "Detect loaders" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.detect_loader ),
+                                settings_current.detect_loader );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.detect_loader );
+
+  dialog.fastload =
+    gtk_check_button_new_with_label( "Fastloading" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.fastload ),
+                                settings_current.fastload );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.fastload );
+
+  dialog.tape_traps =
+    gtk_check_button_new_with_label( "Use tape traps" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.tape_traps ),
+                                settings_current.tape_traps );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.tape_traps );
+
+  dialog.accelerate_loader =
+    gtk_check_button_new_with_label( "Accelerate loaders" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.accelerate_loader ),
+                                settings_current.accelerate_loader );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.accelerate_loader );
+
+  dialog.slt_traps =
+    gtk_check_button_new_with_label( "Use .slt traps" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.slt_traps ),
+                                settings_current.slt_traps );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.slt_traps );
+
+  {
+    GtkWidget *frame = gtk_frame_new( "MDR cartridge len" );
+    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *text = gtk_label_new( "blocks" );
+    gchar buffer[80];
+
+    gtk_box_pack_start( GTK_BOX( content_area ), frame, TRUE, TRUE, 0 );
+
+    gtk_container_set_border_width( GTK_CONTAINER( hbox ), 4 );
+    gtk_container_add( GTK_CONTAINER( frame ), hbox );
+
+    dialog.mdr_len = gtk_entry_new();
+    gtk_entry_set_max_length( GTK_ENTRY( dialog.mdr_len ),
+                              3 );
+    snprintf( buffer, 80, "%d", settings_current.mdr_len );
+    gtk_entry_set_text( GTK_ENTRY( dialog.mdr_len ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.mdr_len ), TRUE );
+
+    gtk_box_pack_start( GTK_BOX( hbox ), dialog.mdr_len, TRUE, TRUE, 0 );
+
+    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
+  }
+
+  dialog.mdr_random_len =
+    gtk_check_button_new_with_label( "Random length MDR cartridge" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.mdr_random_len ),
+                                settings_current.mdr_random_len );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.mdr_random_len );
+
+  /* Create the OK and Cancel buttons */
+  gtkstock_create_ok_cancel( dialog.dialog, NULL,
+                             G_CALLBACK( menu_options_media_done ),
+                             (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
+
+  /* Display the window */
+  gtk_widget_show_all( dialog.dialog );
+
+  /* Process events until the window is done with */
+  gtk_main();
+
+  /* And then carry on with emulation again */
+  fuse_emulation_unpause();
+}
+
+static void
+menu_options_media_done( GtkWidget *widget GCC_UNUSED,
+			      gpointer user_data )
+{
+  menu_options_media_t *ptr = user_data;
+
+  settings_current.auto_load =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->auto_load ) );
+
+  libspectrum_free( settings_current.phantom_typist_mode );
+  settings_current.phantom_typist_mode = utils_safe_strdup( media_phantom_typist_mode_combo[
+    gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->phantom_typist_mode ) ) ] );
+
+  settings_current.detect_loader =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->detect_loader ) );
+
+  settings_current.fastload =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->fastload ) );
+
+  settings_current.tape_traps =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->tape_traps ) );
+
+  settings_current.accelerate_loader =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->accelerate_loader ) );
+
+  settings_current.slt_traps =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->slt_traps ) );
+
+  settings_current.mdr_len =
+    atoi( gtk_entry_get_text( GTK_ENTRY( ptr->mdr_len ) ) );
+
+  settings_current.mdr_random_len =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->mdr_random_len ) );
 
   gtk_widget_destroy( ptr->dialog );
 
@@ -395,6 +531,30 @@ menu_options_peripherals_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.interface2 );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.interface2 );
 
+  dialog.multiface1 =
+    gtk_check_button_new_with_label( "Multiface One" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.multiface1 ),
+                                settings_current.multiface1 );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.multiface1 );
+
+  dialog.multiface128 =
+    gtk_check_button_new_with_label( "Multiface 128" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.multiface128 ),
+                                settings_current.multiface128 );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.multiface128 );
+
+  dialog.multiface3 =
+    gtk_check_button_new_with_label( "Multiface 3" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.multiface3 ),
+                                settings_current.multiface3 );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.multiface3 );
+
+  dialog.multiface1_stealth =
+    gtk_check_button_new_with_label( "Stealth Multiface One" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.multiface1_stealth ),
+                                settings_current.multiface1_stealth );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.multiface1_stealth );
+
   dialog.printer =
     gtk_check_button_new_with_label( "Emulate printers" );
   gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.printer ),
@@ -419,22 +579,25 @@ menu_options_peripherals_general( GtkWidget *widget GCC_UNUSED,
                                 settings_current.specdrum );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.specdrum );
 
-  dialog.spectranet =
-    gtk_check_button_new_with_label( "Spectranet" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.spectranet ),
-                                settings_current.spectranet );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.spectranet );
+  dialog.usource =
+    gtk_check_button_new_with_label( "uSource" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.usource ),
+                                settings_current.usource );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.usource );
 
-  dialog.spectranet_disable =
-    gtk_check_button_new_with_label( "Spectranet disable" );
-  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.spectranet_disable ),
-                                settings_current.spectranet_disable );
-  gtk_container_add( GTK_CONTAINER( content_area ), dialog.spectranet_disable );
+  dialog.covox =
+    gtk_check_button_new_with_label( "Covox interface" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.covox ),
+                                settings_current.covox );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.covox );
 
   /* Create the OK and Cancel buttons */
   gtkstock_create_ok_cancel( dialog.dialog, NULL,
                              G_CALLBACK( menu_options_peripherals_general_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
 
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
@@ -478,6 +641,18 @@ menu_options_peripherals_general_done( GtkWidget *widget GCC_UNUSED,
   settings_current.interface2 =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->interface2 ) );
 
+  settings_current.multiface1 =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->multiface1 ) );
+
+  settings_current.multiface128 =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->multiface128 ) );
+
+  settings_current.multiface3 =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->multiface3 ) );
+
+  settings_current.multiface1_stealth =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->multiface1_stealth ) );
+
   settings_current.printer =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->printer ) );
 
@@ -490,11 +665,11 @@ menu_options_peripherals_general_done( GtkWidget *widget GCC_UNUSED,
   settings_current.specdrum =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->specdrum ) );
 
-  settings_current.spectranet =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->spectranet ) );
+  settings_current.usource =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->usource ) );
 
-  settings_current.spectranet_disable =
-    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->spectranet_disable ) );
+  settings_current.covox =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->covox ) );
 
   int needs_hard_reset = periph_postcheck();
 
@@ -585,11 +760,29 @@ menu_options_peripherals_disk( GtkWidget *widget GCC_UNUSED,
                                 settings_current.divide_wp );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.divide_wp );
 
+  dialog.divmmc_enabled =
+    gtk_check_button_new_with_label( "DivMMC interface" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.divmmc_enabled ),
+                                settings_current.divmmc_enabled );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.divmmc_enabled );
+
+  dialog.divmmc_wp =
+    gtk_check_button_new_with_label( "DivMMC write protect" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.divmmc_wp ),
+                                settings_current.divmmc_wp );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.divmmc_wp );
+
   dialog.plusd =
     gtk_check_button_new_with_label( "+D interface" );
   gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.plusd ),
                                 settings_current.plusd );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.plusd );
+
+  dialog.didaktik80 =
+    gtk_check_button_new_with_label( "Didaktik 80 interface" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.didaktik80 ),
+                                settings_current.didaktik80 );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.didaktik80 );
 
   dialog.disciple =
     gtk_check_button_new_with_label( "DISCiPLE interface" );
@@ -615,10 +808,19 @@ menu_options_peripherals_disk( GtkWidget *widget GCC_UNUSED,
                                 settings_current.opus );
   gtk_container_add( GTK_CONTAINER( content_area ), dialog.opus );
 
+  dialog.zxmmc_enabled =
+    gtk_check_button_new_with_label( "ZXMMC interface" );
+  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( dialog.zxmmc_enabled ),
+                                settings_current.zxmmc_enabled );
+  gtk_container_add( GTK_CONTAINER( content_area ), dialog.zxmmc_enabled );
+
   /* Create the OK and Cancel buttons */
   gtkstock_create_ok_cancel( dialog.dialog, NULL,
                              G_CALLBACK( menu_options_peripherals_disk_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
 
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
@@ -665,8 +867,17 @@ menu_options_peripherals_disk_done( GtkWidget *widget GCC_UNUSED,
   settings_current.divide_wp =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->divide_wp ) );
 
+  settings_current.divmmc_enabled =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->divmmc_enabled ) );
+
+  settings_current.divmmc_wp =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->divmmc_wp ) );
+
   settings_current.plusd =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->plusd ) );
+
+  settings_current.didaktik80 =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->didaktik80 ) );
 
   settings_current.disciple =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->disciple ) );
@@ -679,6 +890,9 @@ menu_options_peripherals_disk_done( GtkWidget *widget GCC_UNUSED,
 
   settings_current.opus =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->opus ) );
+
+  settings_current.zxmmc_enabled =
+    gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->zxmmc_enabled ) );
 
   int needs_hard_reset = periph_postcheck();
 
@@ -755,6 +969,7 @@ menu_options_rzx( GtkWidget *widget GCC_UNUSED,
                               8 );
     snprintf( buffer, 80, "%d", settings_current.competition_code );
     gtk_entry_set_text( GTK_ENTRY( dialog.competition_code ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.competition_code ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.competition_code, TRUE, TRUE, 0 );
 
@@ -771,6 +986,9 @@ menu_options_rzx( GtkWidget *widget GCC_UNUSED,
   gtkstock_create_ok_cancel( dialog.dialog, NULL,
                              G_CALLBACK( menu_options_rzx_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
 
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
@@ -812,7 +1030,7 @@ menu_options_rzx_done( GtkWidget *widget GCC_UNUSED,
 }
 
 
-static const char *sound_stereo_ay_combo[] = {
+static const char * const sound_stereo_ay_combo[] = {
   "None",
   "ACB",
   "ABC",
@@ -830,7 +1048,7 @@ option_enumerate_sound_stereo_ay( void )
 }
 
 
-static const char *sound_speaker_type_combo[] = {
+static const char * const sound_speaker_type_combo[] = {
   "TV speaker",
   "Beeper",
   "Unfiltered",
@@ -955,6 +1173,7 @@ menu_options_sound( GtkWidget *widget GCC_UNUSED,
                               3 );
     snprintf( buffer, 80, "%d", settings_current.volume_ay );
     gtk_entry_set_text( GTK_ENTRY( dialog.volume_ay ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.volume_ay ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.volume_ay, TRUE, TRUE, 0 );
 
@@ -977,6 +1196,7 @@ menu_options_sound( GtkWidget *widget GCC_UNUSED,
                               3 );
     snprintf( buffer, 80, "%d", settings_current.volume_beeper );
     gtk_entry_set_text( GTK_ENTRY( dialog.volume_beeper ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.volume_beeper ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.volume_beeper, TRUE, TRUE, 0 );
 
@@ -999,8 +1219,32 @@ menu_options_sound( GtkWidget *widget GCC_UNUSED,
                               3 );
     snprintf( buffer, 80, "%d", settings_current.volume_specdrum );
     gtk_entry_set_text( GTK_ENTRY( dialog.volume_specdrum ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.volume_specdrum ), TRUE );
 
     gtk_box_pack_start( GTK_BOX( hbox ), dialog.volume_specdrum, TRUE, TRUE, 0 );
+
+    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
+  }
+
+  {
+    GtkWidget *frame = gtk_frame_new( "Covox volume" );
+    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *text = gtk_label_new( "%" );
+    gchar buffer[80];
+
+    gtk_box_pack_start( GTK_BOX( content_area ), frame, TRUE, TRUE, 0 );
+
+    gtk_container_set_border_width( GTK_CONTAINER( hbox ), 4 );
+    gtk_container_add( GTK_CONTAINER( frame ), hbox );
+
+    dialog.volume_covox = gtk_entry_new();
+    gtk_entry_set_max_length( GTK_ENTRY( dialog.volume_covox ),
+                              3 );
+    snprintf( buffer, 80, "%d", settings_current.volume_covox );
+    gtk_entry_set_text( GTK_ENTRY( dialog.volume_covox ), buffer );
+    gtk_entry_set_activates_default( GTK_ENTRY( dialog.volume_covox ), TRUE );
+
+    gtk_box_pack_start( GTK_BOX( hbox ), dialog.volume_covox, TRUE, TRUE, 0 );
 
     gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
   }
@@ -1009,6 +1253,9 @@ menu_options_sound( GtkWidget *widget GCC_UNUSED,
   gtkstock_create_ok_cancel( dialog.dialog, NULL,
                              G_CALLBACK( menu_options_sound_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
+
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
 
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
@@ -1032,14 +1279,14 @@ menu_options_sound_done( GtkWidget *widget GCC_UNUSED,
   settings_current.sound_load =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->sound_load ) );
 
-  free( settings_current.stereo_ay );
+  libspectrum_free( settings_current.stereo_ay );
   settings_current.stereo_ay = utils_safe_strdup( sound_stereo_ay_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->stereo_ay ) ) ] );
 
   settings_current.sound_force_8bit =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->sound_force_8bit ) );
 
-  free( settings_current.speaker_type );
+  libspectrum_free( settings_current.speaker_type );
   settings_current.speaker_type = utils_safe_strdup( sound_speaker_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->speaker_type ) ) ] );
 
@@ -1052,6 +1299,9 @@ menu_options_sound_done( GtkWidget *widget GCC_UNUSED,
   settings_current.volume_specdrum =
     atoi( gtk_entry_get_text( GTK_ENTRY( ptr->volume_specdrum ) ) );
 
+  settings_current.volume_covox =
+    atoi( gtk_entry_get_text( GTK_ENTRY( ptr->volume_covox ) ) );
+
   gtk_widget_destroy( ptr->dialog );
 
   gtkstatusbar_set_visibility( settings_current.statusbar );
@@ -1061,7 +1311,7 @@ menu_options_sound_done( GtkWidget *widget GCC_UNUSED,
 }
 
 
-static const char *diskoptions_drive_plus3a_type_combo[] = {
+static const char * const diskoptions_drive_plus3a_type_combo[] = {
   "Single-sided 40 track",
   "Double-sided 40 track",
   "Single-sided 80 track",
@@ -1080,7 +1330,7 @@ option_enumerate_diskoptions_drive_plus3a_type( void )
 }
 
 
-static const char *diskoptions_drive_plus3b_type_combo[] = {
+static const char * const diskoptions_drive_plus3b_type_combo[] = {
   "Disabled",
   "Single-sided 40 track",
   "Double-sided 40 track",
@@ -1171,6 +1421,30 @@ option_enumerate_diskoptions_drive_plusd2_type( void )
                                  4 );
 }
 
+#define diskoptions_drive_didaktik80a_type_combo diskoptions_drive_plus3a_type_combo
+#define diskoptions_drive_didaktik80a_type_combo_count diskoptions_drive_plus3a_type_combo_count
+
+int
+option_enumerate_diskoptions_drive_didaktik80a_type( void )
+{
+  return option_enumerate_combo( diskoptions_drive_didaktik80a_type_combo,
+                                 settings_current.drive_didaktik80a_type,
+                                 diskoptions_drive_didaktik80a_type_combo_count,
+                                 3 );
+}
+
+#define diskoptions_drive_didaktik80b_type_combo diskoptions_drive_plus3b_type_combo
+#define diskoptions_drive_didaktik80b_type_combo_count diskoptions_drive_plus3b_type_combo_count
+
+int
+option_enumerate_diskoptions_drive_didaktik80b_type( void )
+{
+  return option_enumerate_combo( diskoptions_drive_didaktik80b_type_combo,
+                                 settings_current.drive_didaktik80b_type,
+                                 diskoptions_drive_didaktik80b_type_combo_count,
+                                 4 );
+}
+
 #define diskoptions_drive_disciple1_type_combo diskoptions_drive_plus3a_type_combo
 #define diskoptions_drive_disciple1_type_combo_count diskoptions_drive_plus3a_type_combo_count
 
@@ -1220,7 +1494,7 @@ option_enumerate_diskoptions_drive_opus2_type( void )
 }
 
 
-static const char *diskoptions_disk_try_merge_combo[] = {
+static const char * const diskoptions_disk_try_merge_combo[] = {
   "Never",
   "With single-sided drives",
   "Always",
@@ -1488,6 +1762,62 @@ menu_options_diskoptions( GtkWidget *widget GCC_UNUSED,
   {
     GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
     GtkWidget *combo = gtk_combo_box_text_new();
+    GtkWidget *text = gtk_label_new( "Didaktik 80 Drive A" );
+    guint i;
+
+    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
+    text = gtk_label_new( " " );
+    gtk_box_pack_start( GTK_BOX( hbox ), text, TRUE, FALSE, 5 );
+
+    for( i = 0; i < diskoptions_drive_didaktik80a_type_combo_count; i++ ) {
+      gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), diskoptions_drive_didaktik80a_type_combo[i] );
+    }
+    gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), 3 );
+    if( settings_current.drive_didaktik80a_type != NULL ) {
+      for( i = 0; i < diskoptions_drive_didaktik80a_type_combo_count; i++ ) {
+        if( !strcmp( settings_current.drive_didaktik80a_type, diskoptions_drive_didaktik80a_type_combo[i] ) ) {
+          gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), i );
+        }
+      }
+    }
+
+    dialog.drive_didaktik80a_type = combo;
+    gtk_box_pack_start( GTK_BOX( hbox ), dialog.drive_didaktik80a_type, FALSE, FALSE, 5 );
+
+    gtk_box_pack_start( GTK_BOX( content_area ), hbox, TRUE, TRUE, 0 );
+  }
+
+  {
+    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *combo = gtk_combo_box_text_new();
+    GtkWidget *text = gtk_label_new( "Didaktik 80 Drive B" );
+    guint i;
+
+    gtk_box_pack_start( GTK_BOX( hbox ), text, FALSE, FALSE, 5 );
+    text = gtk_label_new( " " );
+    gtk_box_pack_start( GTK_BOX( hbox ), text, TRUE, FALSE, 5 );
+
+    for( i = 0; i < diskoptions_drive_didaktik80b_type_combo_count; i++ ) {
+      gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), diskoptions_drive_didaktik80b_type_combo[i] );
+    }
+    gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), 4 );
+    if( settings_current.drive_didaktik80b_type != NULL ) {
+      for( i = 0; i < diskoptions_drive_didaktik80b_type_combo_count; i++ ) {
+        if( !strcmp( settings_current.drive_didaktik80b_type, diskoptions_drive_didaktik80b_type_combo[i] ) ) {
+          gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), i );
+        }
+      }
+    }
+
+    dialog.drive_didaktik80b_type = combo;
+    gtk_box_pack_start( GTK_BOX( hbox ), dialog.drive_didaktik80b_type, FALSE, FALSE, 5 );
+
+    gtk_box_pack_start( GTK_BOX( content_area ), hbox, TRUE, TRUE, 0 );
+  }
+
+  {
+    GtkWidget *hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *combo = gtk_combo_box_text_new();
     GtkWidget *text = gtk_label_new( "DISCiPLE Drive 1" );
     guint i;
 
@@ -1636,6 +1966,9 @@ menu_options_diskoptions( GtkWidget *widget GCC_UNUSED,
                              G_CALLBACK( menu_options_diskoptions_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
 
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
+
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
 
@@ -1652,58 +1985,66 @@ menu_options_diskoptions_done( GtkWidget *widget GCC_UNUSED,
 {
   menu_options_diskoptions_t *ptr = user_data;
 
-  free( settings_current.drive_plus3a_type );
+  libspectrum_free( settings_current.drive_plus3a_type );
   settings_current.drive_plus3a_type = utils_safe_strdup( diskoptions_drive_plus3a_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_plus3a_type ) ) ] );
 
-  free( settings_current.drive_plus3b_type );
+  libspectrum_free( settings_current.drive_plus3b_type );
   settings_current.drive_plus3b_type = utils_safe_strdup( diskoptions_drive_plus3b_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_plus3b_type ) ) ] );
 
   settings_current.plus3_detect_speedlock =
     gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( ptr->plus3_detect_speedlock ) );
 
-  free( settings_current.drive_beta128a_type );
+  libspectrum_free( settings_current.drive_beta128a_type );
   settings_current.drive_beta128a_type = utils_safe_strdup( diskoptions_drive_beta128a_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_beta128a_type ) ) ] );
 
-  free( settings_current.drive_beta128b_type );
+  libspectrum_free( settings_current.drive_beta128b_type );
   settings_current.drive_beta128b_type = utils_safe_strdup( diskoptions_drive_beta128b_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_beta128b_type ) ) ] );
 
-  free( settings_current.drive_beta128c_type );
+  libspectrum_free( settings_current.drive_beta128c_type );
   settings_current.drive_beta128c_type = utils_safe_strdup( diskoptions_drive_beta128c_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_beta128c_type ) ) ] );
 
-  free( settings_current.drive_beta128d_type );
+  libspectrum_free( settings_current.drive_beta128d_type );
   settings_current.drive_beta128d_type = utils_safe_strdup( diskoptions_drive_beta128d_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_beta128d_type ) ) ] );
 
-  free( settings_current.drive_plusd1_type );
+  libspectrum_free( settings_current.drive_plusd1_type );
   settings_current.drive_plusd1_type = utils_safe_strdup( diskoptions_drive_plusd1_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_plusd1_type ) ) ] );
 
-  free( settings_current.drive_plusd2_type );
+  libspectrum_free( settings_current.drive_plusd2_type );
   settings_current.drive_plusd2_type = utils_safe_strdup( diskoptions_drive_plusd2_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_plusd2_type ) ) ] );
 
-  free( settings_current.drive_disciple1_type );
+  libspectrum_free( settings_current.drive_didaktik80a_type );
+  settings_current.drive_didaktik80a_type = utils_safe_strdup( diskoptions_drive_didaktik80a_type_combo[
+    gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_didaktik80a_type ) ) ] );
+
+  libspectrum_free( settings_current.drive_didaktik80b_type );
+  settings_current.drive_didaktik80b_type = utils_safe_strdup( diskoptions_drive_didaktik80b_type_combo[
+    gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_didaktik80b_type ) ) ] );
+
+  libspectrum_free( settings_current.drive_disciple1_type );
   settings_current.drive_disciple1_type = utils_safe_strdup( diskoptions_drive_disciple1_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_disciple1_type ) ) ] );
 
-  free( settings_current.drive_disciple2_type );
+  libspectrum_free( settings_current.drive_disciple2_type );
   settings_current.drive_disciple2_type = utils_safe_strdup( diskoptions_drive_disciple2_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_disciple2_type ) ) ] );
 
-  free( settings_current.drive_opus1_type );
+  libspectrum_free( settings_current.drive_opus1_type );
   settings_current.drive_opus1_type = utils_safe_strdup( diskoptions_drive_opus1_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_opus1_type ) ) ] );
 
-  free( settings_current.drive_opus2_type );
+  libspectrum_free( settings_current.drive_opus2_type );
   settings_current.drive_opus2_type = utils_safe_strdup( diskoptions_drive_opus2_type_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->drive_opus2_type ) ) ] );
 
-  free( settings_current.disk_try_merge );
+  libspectrum_free( settings_current.disk_try_merge );
   settings_current.disk_try_merge = utils_safe_strdup( diskoptions_disk_try_merge_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->disk_try_merge ) ) ] );
 
@@ -1719,7 +2060,7 @@ menu_options_diskoptions_done( GtkWidget *widget GCC_UNUSED,
 }
 
 
-static const char *movie_movie_compr_combo[] = {
+static const char * const movie_movie_compr_combo[] = {
   "None",
   "Lossless",
   "High",
@@ -1793,6 +2134,9 @@ menu_options_movie( GtkWidget *widget GCC_UNUSED,
                              G_CALLBACK( menu_options_movie_done ),
                              (gpointer) &dialog, NULL, DEFAULT_DESTROY );
 
+  gtk_dialog_set_default_response( GTK_DIALOG( dialog.dialog ),
+                                   GTK_RESPONSE_OK );
+
   /* Display the window */
   gtk_widget_show_all( dialog.dialog );
 
@@ -1809,7 +2153,7 @@ menu_options_movie_done( GtkWidget *widget GCC_UNUSED,
 {
   menu_options_movie_t *ptr = user_data;
 
-  free( settings_current.movie_compr );
+  libspectrum_free( settings_current.movie_compr );
   settings_current.movie_compr = utils_safe_strdup( movie_movie_compr_combo[
     gtk_combo_box_get_active( GTK_COMBO_BOX( ptr->movie_compr ) ) ] );
 

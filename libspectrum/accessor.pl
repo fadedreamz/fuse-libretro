@@ -1,9 +1,7 @@
 #!/usr/bin/perl -w
 
 # accessor.pl: generate accessor functions
-# Copyright (c) 2003-2009 Philip Kendall
-
-# $Id: accessor.pl 4904 2013-03-08 20:21:02Z pak21 $
+# Copyright (c) 2003-2016 Philip Kendall
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -208,6 +206,15 @@ struct libspectrum_snap {
   libspectrum_byte* divide_eprom[ 1 ];
   libspectrum_byte* divide_ram[ SNAPSHOT_DIVIDE_PAGES ];
 
+  /* DivMMC status */
+  int divmmc_active;
+  int divmmc_eprom_writeprotect;
+  int divmmc_paged;
+  libspectrum_byte divmmc_control;
+  size_t divmmc_pages;
+  libspectrum_byte* divmmc_eprom[ 1 ];
+  libspectrum_byte* divmmc_ram[ SNAPSHOT_DIVMMC_PAGES ];
+
   /* Fuller box status */
   int fuller_box_active;
 
@@ -240,13 +247,77 @@ struct libspectrum_snap {
 
   /* Printer emulation */
   int zx_printer_active;
+
+  /* uSource emulation */
+  int usource_active;
+  int usource_paged;
+  int usource_custom_rom;
+  libspectrum_byte* usource_rom[1];
+  size_t usource_rom_length[1];	/* Length of the ROM */
+
+  /* DISCiPLE emulation */
+  int disciple_active;
+  int disciple_paged;
+  int disciple_inhibit_button;
+  int disciple_drive_count;
+  int disciple_custom_rom;
+  int disciple_direction;
+  libspectrum_byte disciple_control;
+  libspectrum_byte disciple_track;
+  libspectrum_byte disciple_sector;
+  libspectrum_byte disciple_data;
+  libspectrum_byte disciple_status;
+  libspectrum_byte* disciple_rom[1];
+  size_t disciple_rom_length[1];
+  libspectrum_byte* disciple_ram[1];
+
+  /* Didaktik 80 MDOS 1 emulation */
+  int didaktik80_active;
+  int didaktik80_paged;
+  int didaktik80_drive_count;
+  int didaktik80_custom_rom;
+  int didaktik80_direction;
+  libspectrum_byte didaktik80_aux;
+  libspectrum_byte didaktik80_track;
+  libspectrum_byte didaktik80_sector;
+  libspectrum_byte didaktik80_data;
+  libspectrum_byte didaktik80_status;
+  libspectrum_byte* didaktik80_rom[1];
+  size_t didaktik80_rom_length[1];
+  libspectrum_byte* didaktik80_ram[1];
+
+  /* Covox status */
+  int covox_active;
+  libspectrum_byte covox_dac;
+  
+  /* ULAplus emulation */
+  int ulaplus_active;
+  int ulaplus_palette_enabled;
+  libspectrum_byte ulaplus_current_register;
+  libspectrum_byte* ulaplus_palette[1];
+  libspectrum_byte ulaplus_ff_register;
+
+  /* Multiface One/128/3 emulation */
+  int multiface_active;
+  int multiface_paged;
+  int multiface_model_one;
+  int multiface_model_128;
+  int multiface_model_3;
+  int multiface_disabled;
+  int multiface_software_lockout;
+  int multiface_red_button_disabled;
+  libspectrum_byte* multiface_ram[1];
+  size_t multiface_ram_length[1];
+
+  /* ZXMMC status */
+  int zxmmc_active;
 };
 
 /* Initialise a libspectrum_snap structure */
 libspectrum_snap*
 libspectrum_snap_alloc_internal( void )
 {
-  return libspectrum_malloc( sizeof( libspectrum_snap ) );
+  return libspectrum_new( libspectrum_snap, 1 );
 }
 CODE
 

@@ -58,4 +58,7 @@ void widget_diskoptions_keyhandler( input_key key );
 int widget_movie_draw( void *data );
 void widget_movie_keyhandler( input_key key );
 
+int widget_media_draw( void *data );
+void widget_media_keyhandler( input_key key );
+
 #endif				/* #ifndef FUSE_WIDGETOPTIONS_INTERNALS_H */

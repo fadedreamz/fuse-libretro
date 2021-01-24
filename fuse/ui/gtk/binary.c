@@ -1,7 +1,6 @@
 /* binary.c: GTK+ routines to load/save chunks of binary data
-   Copyright (c) 2003-2005 Philip Kendall
-
-   $Id: binary.c 4962 2013-05-19 05:25:15Z sbaldovi $
+   Copyright (c) 2003-2013 Philip Kendall
+   Copyright (c) 2015 Stuart Brady
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,7 +32,7 @@
 
 #include "fuse.h"
 #include "gtkinternals.h"
-#include "memory.h"
+#include "memory_pages.h"
 #include "menu.h"
 #include "ui/ui.h"
 #include "utils.h"
@@ -52,12 +51,12 @@ struct binary_info {
 };
 
 static void change_load_filename( GtkButton *button, gpointer user_data );
-static void load_data( GtkButton *button, gpointer user_data );
+static void load_data( GtkEntry *entry, gpointer user_data );
 
 static void change_save_filename( GtkButton *button, gpointer user_data );
-static void save_data( GtkButton *button, gpointer user_data );
+static void save_data( GtkEntry *entry, gpointer user_data );
 
-void
+static void
 create_binary_dialog( struct binary_info *info, const char *title )
 {
   GtkWidget *table, *button, *content_area;
@@ -215,16 +214,21 @@ change_load_filename( GtkButton *button GCC_UNUSED, gpointer user_data )
 }
 
 static void
-load_data( GtkButton *button GCC_UNUSED, gpointer user_data )
+load_data( GtkEntry *entry GCC_UNUSED, gpointer user_data )
 {
   struct binary_info *info = user_data;
 
   long start, length; size_t i;
+  const gchar *nptr;
+  char *endptr;
+  int base;
 
   errno = 0;
-  length = strtol( gtk_entry_get_text( GTK_ENTRY( info->length_widget ) ),
-		   NULL, 10 );
-  if( errno || length < 1 || length > 0x10000 ) {
+  nptr = gtk_entry_get_text( GTK_ENTRY( info->length_widget ) );
+  base = ( g_str_has_prefix( nptr, "0x" ) )? 16 : 10;
+  length = strtol( nptr, &endptr, base );
+
+  if( errno || length < 1 || length > 0x10000 || endptr == nptr ) {
     ui_error( UI_ERROR_ERROR, "Length must be between 1 and 65536" );
     return;
   }
@@ -237,9 +241,11 @@ load_data( GtkButton *button GCC_UNUSED, gpointer user_data )
   }
 
   errno = 0;
-  start = strtol( gtk_entry_get_text( GTK_ENTRY( info->start_widget ) ),
-		  NULL, 10 );
-  if( errno || start < 0 || start > 0xffff ) {
+  nptr = gtk_entry_get_text( GTK_ENTRY( info->start_widget ) );
+  base = ( g_str_has_prefix( nptr, "0x" ) )? 16 : 10;
+  start = strtol( nptr, &endptr, base );
+
+  if( errno || start < 0 || start > 0xffff || endptr == nptr ) {
     ui_error( UI_ERROR_ERROR, "Start must be between 0 and 65535" );
     return;
   }
@@ -250,7 +256,7 @@ load_data( GtkButton *button GCC_UNUSED, gpointer user_data )
   }
 
   for( i = 0; i < length; i++ )
-    writebyte( start + i, info->file.buffer[ i ] );
+    writebyte_internal( start + i, info->file.buffer[ i ] );
 
   gtkui_destroy_widget_and_quit( info->dialog, NULL );
 }
@@ -298,51 +304,44 @@ change_save_filename( GtkButton *button GCC_UNUSED, gpointer user_data )
 }
 
 static void
-save_data( GtkButton *button GCC_UNUSED, gpointer user_data )
+save_data( GtkEntry *entry GCC_UNUSED, gpointer user_data )
 {
   struct binary_info *info = user_data;
 
-  long start, length; size_t i;
-  libspectrum_byte *buffer;
+  long start, length;
+  const gchar *nptr;
+  char *endptr;
+  int base;
 
   int error;
 
   errno = 0;
-  length = strtol( gtk_entry_get_text( GTK_ENTRY( info->length_widget ) ),
-		   NULL, 10 );
-  if( errno || length < 1 || length > 0x10000 ) {
+  nptr = gtk_entry_get_text( GTK_ENTRY( info->length_widget ) );
+  base = ( g_str_has_prefix( nptr, "0x" ) )? 16 : 10;
+  length = strtol( nptr, &endptr, base );
+
+  if( errno || length < 1 || length > 0x10000 || endptr == nptr ) {
     ui_error( UI_ERROR_ERROR, "Length must be between 1 and 65536" );
     return;
   }
 
-  buffer = malloc( length * sizeof( libspectrum_byte ) );
-  if( !buffer ) {
-    ui_error( UI_ERROR_ERROR, "out of memory at %s:%d", __FILE__, __LINE__ );
-    return;
-  }
-
   errno = 0;
-  start = strtol( gtk_entry_get_text( GTK_ENTRY( info->start_widget ) ),
-		  NULL, 10 );
-  if( errno || start < 0 || start > 0xffff ) {
+  nptr = gtk_entry_get_text( GTK_ENTRY( info->start_widget ) );
+  base = ( g_str_has_prefix( nptr, "0x" ) )? 16 : 10;
+  start = strtol( nptr, &endptr, base );
+
+  if( errno || start < 0 || start > 0xffff || endptr == nptr ) {
     ui_error( UI_ERROR_ERROR, "Start must be between 0 and 65535" );
-    free( buffer );
     return;
   }
 
   if( start + length > 0x10000 ) {
     ui_error( UI_ERROR_ERROR, "Block ends after address 65535" );
-    free( buffer );
     return;
   }
 
-  for( i = 0; i < length; i++ )
-    buffer[ i ] = readbyte( start + i );
-
-  error = utils_write_file( info->filename, buffer, length );
-  if( error ) { free( buffer ); return; }
-
-  free( buffer );
+  error = utils_save_binary( start, length, info->filename );
+  if( error ) return;
 
   gtkui_destroy_widget_and_quit( info->dialog, NULL );
 }

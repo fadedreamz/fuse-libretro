@@ -1,7 +1,5 @@
 /* make-perl.c: Generate a perl script to create the libspectrum_* typedefs
-   Copyright (c) 2002-2003 Philip Kendall, Darren Salt
-
-   $Id: make-perl.c 4796 2012-12-26 10:36:57Z fredm $
+   Copyright (c) 2002-2003,2015 Philip Kendall, Darren Salt
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -115,11 +113,13 @@ int main(void)
 
 #ifdef HAVE_LIB_GLIB		/* #ifdef HAVE_LIB_GLIB */
 
-  printf( "  $_ = '';\n\n" );
+  printf( "  $_ = \"#define LIBSPECTRUM_HAS_GLIB_REPLACEMENT 0\\n\"\n" );
 
 #else				/* #ifdef HAVE_LIB_GLIB */
 
   printf( "  $_ = << \"CODE\";\n"
+"#define LIBSPECTRUM_HAS_GLIB_REPLACEMENT 1\n"
+"\n"
 "#ifndef	FALSE\n"
 "#define	FALSE	(0)\n"
 "#endif\n"
@@ -258,10 +258,13 @@ int main(void)
 "\n"
 "WIN32_DLL GArray* g_array_new( gboolean zero_terminated, gboolean clear,\n"
 "		      guint element_size );\n"
+"WIN32_DLL GArray* g_array_sized_new( gboolean zero_terminated, gboolean clear,\n"
+"                   guint element_size, guint reserved_size );\n"
 "#define g_array_append_val(a,v) g_array_append_vals( a, &(v), 1 );\n"
 "WIN32_DLL GArray* g_array_append_vals( GArray *array, gconstpointer data, guint len );\n"
 "#define g_array_index(a,t,i) (*(((t*)a->data)+i))\n"
 "WIN32_DLL GArray* g_array_set_size( GArray *array, guint length );\n"
+"WIN32_DLL GArray* g_array_remove_index_fast( GArray *array, guint index );\n"
 "WIN32_DLL gchar* g_array_free( GArray *array, gboolean free_segment );\n"
 "\n" );
   if( sizeof( void* ) == sizeof( int ) ) {

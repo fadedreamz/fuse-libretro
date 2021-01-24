@@ -1,7 +1,7 @@
 /* xdisplay.c: Routines for dealing with drawing the Speccy's screen via Xlib
    Copyright (c) 2000-2005 Philip Kendall, Darren Salt, Gergely Szász
-
-   $Id: xdisplay.c 4707 2012-05-25 11:35:23Z fredm $
+   Copyright (c) 2015 Stuart Brady
+   Copyright (c) 2015 Sergio Baldoví
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -100,7 +100,6 @@ static const ptrdiff_t scaled_pitch =
 /* A scaled copy of the image displayed on the Spectrum's screen */
 static libspectrum_word
   rgb_image_backup[2 * ( DISPLAY_SCREEN_HEIGHT + 4 )][2 * ( DISPLAY_SCREEN_WIDTH  + 3 )];
-static const int rgb_backup_pitch = 2 * ( DISPLAY_SCREEN_WIDTH + 3 );
 
 static unsigned long colours[128];
 static int colours_allocated = 0;
@@ -159,8 +158,8 @@ static xdisplay_putpixel_t xdisplay_putpixel_15;
 static xdisplay_putpixel_t xdisplay_putpixel_16;
 static xdisplay_putpixel_t xdisplay_putpixel_24;
 
-#include "xpixmaps.c"
-void xstatusbar_overlay();
+#include "ui/xlib/xpixmaps.c"
+void xstatusbar_overlay( void );
 
 static libspectrum_word pal_colour[16] = {
   0x0000, 0x0017, 0xb800, 0xb817, 0x05e0, 0x05f7, 0xbde0, 0xbdf7,
@@ -895,7 +894,10 @@ xdisplay_end( void )
 {
   xdisplay_destroy_image();
   /* Free the allocated GC */
-  if( gc ) XFreeGC( display, gc ); gc = 0;
+  if( gc ) {
+    XFreeGC( display, gc );
+    gc = 0;
+  }
 
   return 0;
 }

@@ -1,6 +1,7 @@
 *.[oa]
 *.dll
 *.so
+*.lo
 *.dylib
 *~
 fuse/*.h

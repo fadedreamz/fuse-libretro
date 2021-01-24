@@ -676,6 +676,8 @@ bool retro_load_game(const struct retro_game_info *info)
       // Enable read/write on all disk drives
       int i;
 
+      // seems like functions were removed
+      /*
       for (i = 0; i < 2; i++)
       {
          specplus3_disk_writeprotect( i, 0 );
@@ -692,7 +694,7 @@ bool retro_load_game(const struct retro_game_info *info)
       for (i = 0; i < 8; i++)
       {
          if1_mdr_writeprotect( i, 0 );
-      }
+      }*/
 
       // Set up memory map interface
       struct retro_memory_descriptor desc[MEMORY_PAGES_IN_64K];

@@ -180,6 +180,15 @@ struct libspectrum_snap {
   libspectrum_byte* divide_eprom[ 1 ];
   libspectrum_byte* divide_ram[ SNAPSHOT_DIVIDE_PAGES ];
 
+  /* DivMMC status */
+  int divmmc_active;
+  int divmmc_eprom_writeprotect;
+  int divmmc_paged;
+  libspectrum_byte divmmc_control;
+  size_t divmmc_pages;
+  libspectrum_byte* divmmc_eprom[ 1 ];
+  libspectrum_byte* divmmc_ram[ SNAPSHOT_DIVMMC_PAGES ];
+
   /* Fuller box status */
   int fuller_box_active;
 
@@ -212,13 +221,77 @@ struct libspectrum_snap {
 
   /* Printer emulation */
   int zx_printer_active;
+
+  /* uSource emulation */
+  int usource_active;
+  int usource_paged;
+  int usource_custom_rom;
+  libspectrum_byte* usource_rom[1];
+  size_t usource_rom_length[1];	/* Length of the ROM */
+
+  /* DISCiPLE emulation */
+  int disciple_active;
+  int disciple_paged;
+  int disciple_inhibit_button;
+  int disciple_drive_count;
+  int disciple_custom_rom;
+  int disciple_direction;
+  libspectrum_byte disciple_control;
+  libspectrum_byte disciple_track;
+  libspectrum_byte disciple_sector;
+  libspectrum_byte disciple_data;
+  libspectrum_byte disciple_status;
+  libspectrum_byte* disciple_rom[1];
+  size_t disciple_rom_length[1];
+  libspectrum_byte* disciple_ram[1];
+
+  /* Didaktik 80 MDOS 1 emulation */
+  int didaktik80_active;
+  int didaktik80_paged;
+  int didaktik80_drive_count;
+  int didaktik80_custom_rom;
+  int didaktik80_direction;
+  libspectrum_byte didaktik80_aux;
+  libspectrum_byte didaktik80_track;
+  libspectrum_byte didaktik80_sector;
+  libspectrum_byte didaktik80_data;
+  libspectrum_byte didaktik80_status;
+  libspectrum_byte* didaktik80_rom[1];
+  size_t didaktik80_rom_length[1];
+  libspectrum_byte* didaktik80_ram[1];
+
+  /* Covox status */
+  int covox_active;
+  libspectrum_byte covox_dac;
+  
+  /* ULAplus emulation */
+  int ulaplus_active;
+  int ulaplus_palette_enabled;
+  libspectrum_byte ulaplus_current_register;
+  libspectrum_byte* ulaplus_palette[1];
+  libspectrum_byte ulaplus_ff_register;
+
+  /* Multiface One/128/3 emulation */
+  int multiface_active;
+  int multiface_paged;
+  int multiface_model_one;
+  int multiface_model_128;
+  int multiface_model_3;
+  int multiface_disabled;
+  int multiface_software_lockout;
+  int multiface_red_button_disabled;
+  libspectrum_byte* multiface_ram[1];
+  size_t multiface_ram_length[1];
+
+  /* ZXMMC status */
+  int zxmmc_active;
 };
 
 /* Initialise a libspectrum_snap structure */
 libspectrum_snap*
 libspectrum_snap_alloc_internal( void )
 {
-  return libspectrum_malloc( sizeof( libspectrum_snap ) );
+  return libspectrum_new( libspectrum_snap, 1 );
 }
 
 libspectrum_machine
@@ -1698,6 +1771,90 @@ libspectrum_snap_set_divide_ram( libspectrum_snap *snap, int idx, libspectrum_by
 }
 
 int
+libspectrum_snap_divmmc_active( libspectrum_snap *snap )
+{
+  return snap->divmmc_active;
+}
+
+void
+libspectrum_snap_set_divmmc_active( libspectrum_snap *snap, int divmmc_active )
+{
+  snap->divmmc_active = divmmc_active;
+}
+
+int
+libspectrum_snap_divmmc_eprom_writeprotect( libspectrum_snap *snap )
+{
+  return snap->divmmc_eprom_writeprotect;
+}
+
+void
+libspectrum_snap_set_divmmc_eprom_writeprotect( libspectrum_snap *snap, int divmmc_eprom_writeprotect )
+{
+  snap->divmmc_eprom_writeprotect = divmmc_eprom_writeprotect;
+}
+
+int
+libspectrum_snap_divmmc_paged( libspectrum_snap *snap )
+{
+  return snap->divmmc_paged;
+}
+
+void
+libspectrum_snap_set_divmmc_paged( libspectrum_snap *snap, int divmmc_paged )
+{
+  snap->divmmc_paged = divmmc_paged;
+}
+
+libspectrum_byte
+libspectrum_snap_divmmc_control( libspectrum_snap *snap )
+{
+  return snap->divmmc_control;
+}
+
+void
+libspectrum_snap_set_divmmc_control( libspectrum_snap *snap, libspectrum_byte divmmc_control )
+{
+  snap->divmmc_control = divmmc_control;
+}
+
+size_t
+libspectrum_snap_divmmc_pages( libspectrum_snap *snap )
+{
+  return snap->divmmc_pages;
+}
+
+void
+libspectrum_snap_set_divmmc_pages( libspectrum_snap *snap, size_t divmmc_pages )
+{
+  snap->divmmc_pages = divmmc_pages;
+}
+
+libspectrum_byte*
+libspectrum_snap_divmmc_eprom( libspectrum_snap *snap, int idx )
+{
+  return snap->divmmc_eprom[idx];
+}
+
+void
+libspectrum_snap_set_divmmc_eprom( libspectrum_snap *snap, int idx, libspectrum_byte* divmmc_eprom )
+{
+  snap->divmmc_eprom[idx] = divmmc_eprom;
+}
+
+libspectrum_byte*
+libspectrum_snap_divmmc_ram( libspectrum_snap *snap, int idx )
+{
+  return snap->divmmc_ram[idx];
+}
+
+void
+libspectrum_snap_set_divmmc_ram( libspectrum_snap *snap, int idx, libspectrum_byte* divmmc_ram )
+{
+  snap->divmmc_ram[idx] = divmmc_ram;
+}
+
+int
 libspectrum_snap_fuller_box_active( libspectrum_snap *snap )
 {
   return snap->fuller_box_active;
@@ -1947,4 +2104,604 @@ void
 libspectrum_snap_set_zx_printer_active( libspectrum_snap *snap, int zx_printer_active )
 {
   snap->zx_printer_active = zx_printer_active;
+}
+
+int
+libspectrum_snap_usource_active( libspectrum_snap *snap )
+{
+  return snap->usource_active;
+}
+
+void
+libspectrum_snap_set_usource_active( libspectrum_snap *snap, int usource_active )
+{
+  snap->usource_active = usource_active;
+}
+
+int
+libspectrum_snap_usource_paged( libspectrum_snap *snap )
+{
+  return snap->usource_paged;
+}
+
+void
+libspectrum_snap_set_usource_paged( libspectrum_snap *snap, int usource_paged )
+{
+  snap->usource_paged = usource_paged;
+}
+
+int
+libspectrum_snap_usource_custom_rom( libspectrum_snap *snap )
+{
+  return snap->usource_custom_rom;
+}
+
+void
+libspectrum_snap_set_usource_custom_rom( libspectrum_snap *snap, int usource_custom_rom )
+{
+  snap->usource_custom_rom = usource_custom_rom;
+}
+
+libspectrum_byte*
+libspectrum_snap_usource_rom( libspectrum_snap *snap, int idx )
+{
+  return snap->usource_rom[idx];
+}
+
+void
+libspectrum_snap_set_usource_rom( libspectrum_snap *snap, int idx, libspectrum_byte* usource_rom )
+{
+  snap->usource_rom[idx] = usource_rom;
+}
+
+size_t
+libspectrum_snap_usource_rom_length( libspectrum_snap *snap, int idx )
+{
+  return snap->usource_rom_length[idx];
+}
+
+void
+libspectrum_snap_set_usource_rom_length( libspectrum_snap *snap, int idx, size_t usource_rom_length )
+{
+  snap->usource_rom_length[idx] = usource_rom_length;
+}
+
+int
+libspectrum_snap_disciple_active( libspectrum_snap *snap )
+{
+  return snap->disciple_active;
+}
+
+void
+libspectrum_snap_set_disciple_active( libspectrum_snap *snap, int disciple_active )
+{
+  snap->disciple_active = disciple_active;
+}
+
+int
+libspectrum_snap_disciple_paged( libspectrum_snap *snap )
+{
+  return snap->disciple_paged;
+}
+
+void
+libspectrum_snap_set_disciple_paged( libspectrum_snap *snap, int disciple_paged )
+{
+  snap->disciple_paged = disciple_paged;
+}
+
+int
+libspectrum_snap_disciple_inhibit_button( libspectrum_snap *snap )
+{
+  return snap->disciple_inhibit_button;
+}
+
+void
+libspectrum_snap_set_disciple_inhibit_button( libspectrum_snap *snap, int disciple_inhibit_button )
+{
+  snap->disciple_inhibit_button = disciple_inhibit_button;
+}
+
+int
+libspectrum_snap_disciple_drive_count( libspectrum_snap *snap )
+{
+  return snap->disciple_drive_count;
+}
+
+void
+libspectrum_snap_set_disciple_drive_count( libspectrum_snap *snap, int disciple_drive_count )
+{
+  snap->disciple_drive_count = disciple_drive_count;
+}
+
+int
+libspectrum_snap_disciple_custom_rom( libspectrum_snap *snap )
+{
+  return snap->disciple_custom_rom;
+}
+
+void
+libspectrum_snap_set_disciple_custom_rom( libspectrum_snap *snap, int disciple_custom_rom )
+{
+  snap->disciple_custom_rom = disciple_custom_rom;
+}
+
+size_t
+libspectrum_snap_disciple_rom_length( libspectrum_snap *snap, int idx )
+{
+  return snap->disciple_rom_length[idx];
+}
+
+void
+libspectrum_snap_set_disciple_rom_length( libspectrum_snap *snap, int idx, size_t disciple_rom_length )
+{
+  snap->disciple_rom_length[idx] = disciple_rom_length;
+}
+
+int
+libspectrum_snap_disciple_direction( libspectrum_snap *snap )
+{
+  return snap->disciple_direction;
+}
+
+void
+libspectrum_snap_set_disciple_direction( libspectrum_snap *snap, int disciple_direction )
+{
+  snap->disciple_direction = disciple_direction;
+}
+
+libspectrum_byte
+libspectrum_snap_disciple_control( libspectrum_snap *snap )
+{
+  return snap->disciple_control;
+}
+
+void
+libspectrum_snap_set_disciple_control( libspectrum_snap *snap, libspectrum_byte disciple_control )
+{
+  snap->disciple_control = disciple_control;
+}
+
+libspectrum_byte
+libspectrum_snap_disciple_track( libspectrum_snap *snap )
+{
+  return snap->disciple_track;
+}
+
+void
+libspectrum_snap_set_disciple_track( libspectrum_snap *snap, libspectrum_byte disciple_track )
+{
+  snap->disciple_track = disciple_track;
+}
+
+libspectrum_byte
+libspectrum_snap_disciple_sector( libspectrum_snap *snap )
+{
+  return snap->disciple_sector;
+}
+
+void
+libspectrum_snap_set_disciple_sector( libspectrum_snap *snap, libspectrum_byte disciple_sector )
+{
+  snap->disciple_sector = disciple_sector;
+}
+
+libspectrum_byte
+libspectrum_snap_disciple_data( libspectrum_snap *snap )
+{
+  return snap->disciple_data;
+}
+
+void
+libspectrum_snap_set_disciple_data( libspectrum_snap *snap, libspectrum_byte disciple_data )
+{
+  snap->disciple_data = disciple_data;
+}
+
+libspectrum_byte
+libspectrum_snap_disciple_status( libspectrum_snap *snap )
+{
+  return snap->disciple_status;
+}
+
+void
+libspectrum_snap_set_disciple_status( libspectrum_snap *snap, libspectrum_byte disciple_status )
+{
+  snap->disciple_status = disciple_status;
+}
+
+libspectrum_byte*
+libspectrum_snap_disciple_rom( libspectrum_snap *snap, int idx )
+{
+  return snap->disciple_rom[idx];
+}
+
+void
+libspectrum_snap_set_disciple_rom( libspectrum_snap *snap, int idx, libspectrum_byte* disciple_rom )
+{
+  snap->disciple_rom[idx] = disciple_rom;
+}
+
+libspectrum_byte*
+libspectrum_snap_disciple_ram( libspectrum_snap *snap, int idx )
+{
+  return snap->disciple_ram[idx];
+}
+
+void
+libspectrum_snap_set_disciple_ram( libspectrum_snap *snap, int idx, libspectrum_byte* disciple_ram )
+{
+  snap->disciple_ram[idx] = disciple_ram;
+}
+
+int
+libspectrum_snap_didaktik80_active( libspectrum_snap *snap )
+{
+  return snap->didaktik80_active;
+}
+
+void
+libspectrum_snap_set_didaktik80_active( libspectrum_snap *snap, int didaktik80_active )
+{
+  snap->didaktik80_active = didaktik80_active;
+}
+
+int
+libspectrum_snap_didaktik80_paged( libspectrum_snap *snap )
+{
+  return snap->didaktik80_paged;
+}
+
+void
+libspectrum_snap_set_didaktik80_paged( libspectrum_snap *snap, int didaktik80_paged )
+{
+  snap->didaktik80_paged = didaktik80_paged;
+}
+
+int
+libspectrum_snap_didaktik80_drive_count( libspectrum_snap *snap )
+{
+  return snap->didaktik80_drive_count;
+}
+
+void
+libspectrum_snap_set_didaktik80_drive_count( libspectrum_snap *snap, int didaktik80_drive_count )
+{
+  snap->didaktik80_drive_count = didaktik80_drive_count;
+}
+
+int
+libspectrum_snap_didaktik80_custom_rom( libspectrum_snap *snap )
+{
+  return snap->didaktik80_custom_rom;
+}
+
+void
+libspectrum_snap_set_didaktik80_custom_rom( libspectrum_snap *snap, int didaktik80_custom_rom )
+{
+  snap->didaktik80_custom_rom = didaktik80_custom_rom;
+}
+
+size_t
+libspectrum_snap_didaktik80_rom_length( libspectrum_snap *snap, int idx )
+{
+  return snap->didaktik80_rom_length[idx];
+}
+
+void
+libspectrum_snap_set_didaktik80_rom_length( libspectrum_snap *snap, int idx, size_t didaktik80_rom_length )
+{
+  snap->didaktik80_rom_length[idx] = didaktik80_rom_length;
+}
+
+int
+libspectrum_snap_didaktik80_direction( libspectrum_snap *snap )
+{
+  return snap->didaktik80_direction;
+}
+
+void
+libspectrum_snap_set_didaktik80_direction( libspectrum_snap *snap, int didaktik80_direction )
+{
+  snap->didaktik80_direction = didaktik80_direction;
+}
+
+libspectrum_byte
+libspectrum_snap_didaktik80_aux( libspectrum_snap *snap )
+{
+  return snap->didaktik80_aux;
+}
+
+void
+libspectrum_snap_set_didaktik80_aux( libspectrum_snap *snap, libspectrum_byte didaktik80_aux )
+{
+  snap->didaktik80_aux = didaktik80_aux;
+}
+
+libspectrum_byte
+libspectrum_snap_didaktik80_track( libspectrum_snap *snap )
+{
+  return snap->didaktik80_track;
+}
+
+void
+libspectrum_snap_set_didaktik80_track( libspectrum_snap *snap, libspectrum_byte didaktik80_track )
+{
+  snap->didaktik80_track = didaktik80_track;
+}
+
+libspectrum_byte
+libspectrum_snap_didaktik80_sector( libspectrum_snap *snap )
+{
+  return snap->didaktik80_sector;
+}
+
+void
+libspectrum_snap_set_didaktik80_sector( libspectrum_snap *snap, libspectrum_byte didaktik80_sector )
+{
+  snap->didaktik80_sector = didaktik80_sector;
+}
+
+libspectrum_byte
+libspectrum_snap_didaktik80_data( libspectrum_snap *snap )
+{
+  return snap->didaktik80_data;
+}
+
+void
+libspectrum_snap_set_didaktik80_data( libspectrum_snap *snap, libspectrum_byte didaktik80_data )
+{
+  snap->didaktik80_data = didaktik80_data;
+}
+
+libspectrum_byte
+libspectrum_snap_didaktik80_status( libspectrum_snap *snap )
+{
+  return snap->didaktik80_status;
+}
+
+void
+libspectrum_snap_set_didaktik80_status( libspectrum_snap *snap, libspectrum_byte didaktik80_status )
+{
+  snap->didaktik80_status = didaktik80_status;
+}
+
+libspectrum_byte*
+libspectrum_snap_didaktik80_rom( libspectrum_snap *snap, int idx )
+{
+  return snap->didaktik80_rom[idx];
+}
+
+void
+libspectrum_snap_set_didaktik80_rom( libspectrum_snap *snap, int idx, libspectrum_byte* didaktik80_rom )
+{
+  snap->didaktik80_rom[idx] = didaktik80_rom;
+}
+
+libspectrum_byte*
+libspectrum_snap_didaktik80_ram( libspectrum_snap *snap, int idx )
+{
+  return snap->didaktik80_ram[idx];
+}
+
+void
+libspectrum_snap_set_didaktik80_ram( libspectrum_snap *snap, int idx, libspectrum_byte* didaktik80_ram )
+{
+  snap->didaktik80_ram[idx] = didaktik80_ram;
+}
+
+int
+libspectrum_snap_covox_active( libspectrum_snap *snap )
+{
+  return snap->covox_active;
+}
+
+void
+libspectrum_snap_set_covox_active( libspectrum_snap *snap, int covox_active )
+{
+  snap->covox_active = covox_active;
+}
+
+libspectrum_byte
+libspectrum_snap_covox_dac( libspectrum_snap *snap )
+{
+  return snap->covox_dac;
+}
+
+void
+libspectrum_snap_set_covox_dac( libspectrum_snap *snap, libspectrum_byte covox_dac )
+{
+  snap->covox_dac = covox_dac;
+}
+
+int
+libspectrum_snap_ulaplus_active( libspectrum_snap *snap )
+{
+  return snap->ulaplus_active;
+}
+
+void
+libspectrum_snap_set_ulaplus_active( libspectrum_snap *snap, int ulaplus_active )
+{
+  snap->ulaplus_active = ulaplus_active;
+}
+
+int
+libspectrum_snap_ulaplus_palette_enabled( libspectrum_snap *snap )
+{
+  return snap->ulaplus_palette_enabled;
+}
+
+void
+libspectrum_snap_set_ulaplus_palette_enabled( libspectrum_snap *snap, int ulaplus_palette_enabled )
+{
+  snap->ulaplus_palette_enabled = ulaplus_palette_enabled;
+}
+
+libspectrum_byte
+libspectrum_snap_ulaplus_current_register( libspectrum_snap *snap )
+{
+  return snap->ulaplus_current_register;
+}
+
+void
+libspectrum_snap_set_ulaplus_current_register( libspectrum_snap *snap, libspectrum_byte ulaplus_current_register )
+{
+  snap->ulaplus_current_register = ulaplus_current_register;
+}
+
+libspectrum_byte*
+libspectrum_snap_ulaplus_palette( libspectrum_snap *snap, int idx )
+{
+  return snap->ulaplus_palette[idx];
+}
+
+void
+libspectrum_snap_set_ulaplus_palette( libspectrum_snap *snap, int idx, libspectrum_byte* ulaplus_palette )
+{
+  snap->ulaplus_palette[idx] = ulaplus_palette;
+}
+
+libspectrum_byte
+libspectrum_snap_ulaplus_ff_register( libspectrum_snap *snap )
+{
+  return snap->ulaplus_ff_register;
+}
+
+void
+libspectrum_snap_set_ulaplus_ff_register( libspectrum_snap *snap, libspectrum_byte ulaplus_ff_register )
+{
+  snap->ulaplus_ff_register = ulaplus_ff_register;
+}
+
+int
+libspectrum_snap_multiface_active( libspectrum_snap *snap )
+{
+  return snap->multiface_active;
+}
+
+void
+libspectrum_snap_set_multiface_active( libspectrum_snap *snap, int multiface_active )
+{
+  snap->multiface_active = multiface_active;
+}
+
+int
+libspectrum_snap_multiface_paged( libspectrum_snap *snap )
+{
+  return snap->multiface_paged;
+}
+
+void
+libspectrum_snap_set_multiface_paged( libspectrum_snap *snap, int multiface_paged )
+{
+  snap->multiface_paged = multiface_paged;
+}
+
+int
+libspectrum_snap_multiface_model_one( libspectrum_snap *snap )
+{
+  return snap->multiface_model_one;
+}
+
+void
+libspectrum_snap_set_multiface_model_one( libspectrum_snap *snap, int multiface_model_one )
+{
+  snap->multiface_model_one = multiface_model_one;
+}
+
+int
+libspectrum_snap_multiface_model_128( libspectrum_snap *snap )
+{
+  return snap->multiface_model_128;
+}
+
+void
+libspectrum_snap_set_multiface_model_128( libspectrum_snap *snap, int multiface_model_128 )
+{
+  snap->multiface_model_128 = multiface_model_128;
+}
+
+int
+libspectrum_snap_multiface_model_3( libspectrum_snap *snap )
+{
+  return snap->multiface_model_3;
+}
+
+void
+libspectrum_snap_set_multiface_model_3( libspectrum_snap *snap, int multiface_model_3 )
+{
+  snap->multiface_model_3 = multiface_model_3;
+}
+
+int
+libspectrum_snap_multiface_disabled( libspectrum_snap *snap )
+{
+  return snap->multiface_disabled;
+}
+
+void
+libspectrum_snap_set_multiface_disabled( libspectrum_snap *snap, int multiface_disabled )
+{
+  snap->multiface_disabled = multiface_disabled;
+}
+
+int
+libspectrum_snap_multiface_software_lockout( libspectrum_snap *snap )
+{
+  return snap->multiface_software_lockout;
+}
+
+void
+libspectrum_snap_set_multiface_software_lockout( libspectrum_snap *snap, int multiface_software_lockout )
+{
+  snap->multiface_software_lockout = multiface_software_lockout;
+}
+
+int
+libspectrum_snap_multiface_red_button_disabled( libspectrum_snap *snap )
+{
+  return snap->multiface_red_button_disabled;
+}
+
+void
+libspectrum_snap_set_multiface_red_button_disabled( libspectrum_snap *snap, int multiface_red_button_disabled )
+{
+  snap->multiface_red_button_disabled = multiface_red_button_disabled;
+}
+
+libspectrum_byte*
+libspectrum_snap_multiface_ram( libspectrum_snap *snap, int idx )
+{
+  return snap->multiface_ram[idx];
+}
+
+void
+libspectrum_snap_set_multiface_ram( libspectrum_snap *snap, int idx, libspectrum_byte* multiface_ram )
+{
+  snap->multiface_ram[idx] = multiface_ram;
+}
+
+size_t
+libspectrum_snap_multiface_ram_length( libspectrum_snap *snap, int idx )
+{
+  return snap->multiface_ram_length[idx];
+}
+
+void
+libspectrum_snap_set_multiface_ram_length( libspectrum_snap *snap, int idx, size_t multiface_ram_length )
+{
+  snap->multiface_ram_length[idx] = multiface_ram_length;
+}
+
+int
+libspectrum_snap_zxmmc_active( libspectrum_snap *snap )
+{
+  return snap->zxmmc_active;
+}
+
+void
+libspectrum_snap_set_zxmmc_active( libspectrum_snap *snap, int zxmmc_active )
+{
+  snap->zxmmc_active = zxmmc_active;
 }

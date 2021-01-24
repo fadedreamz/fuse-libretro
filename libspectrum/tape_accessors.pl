@@ -3,8 +3,6 @@
 # tape_accessors.pl: generate accessor functions for libspectrum_tape_block
 # Copyright (c) 2003 Philip Kendall
 
-# $Id: tape_accessors.pl 2890 2007-05-26 19:31:43Z zubzero $
-
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or

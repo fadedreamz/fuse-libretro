@@ -1,8 +1,7 @@
 /* scaler.c: code for selecting (etc) scalers
  * Copyright (C) 2003 Fredrick Meunier, Philip Kendall
+ * Copyright (c) 2015 Sergio Baldoví
  * 
- * $Id: scaler.c 4633 2012-01-19 23:26:10Z pak21 $
- *
  * Originally taken from ScummVM - Scumm Interpreter
  * Copyright (C) 2001  Ludvig Strigeus
  * Copyright (C) 2001/2002 The ScummVM project
@@ -131,7 +130,7 @@ scaler_select_scaler( scaler_type scaler )
 
   current_scaler = scaler;
 
-  if( settings_current.start_scaler_mode ) free( settings_current.start_scaler_mode );
+  if( settings_current.start_scaler_mode ) libspectrum_free( settings_current.start_scaler_mode );
   settings_current.start_scaler_mode =
     utils_safe_strdup( available_scalers[current_scaler].id );
 
